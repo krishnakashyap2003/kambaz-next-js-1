@@ -32,6 +32,7 @@ export default function Signup() {
     }
 
     console.log("Trying to sign up with:", user);
+    console.log("API Base URL:", process.env.NEXT_PUBLIC_API_BASE || "http://localhost:4000");
     try {
       const newUser: User = await client.signup(user);
       console.log("Created user:", newUser);
@@ -39,7 +40,25 @@ export default function Signup() {
       router.push("/Dashboard");
     } catch (err: unknown) {
       console.error("Signup error:", err);
-      alert("Signup failed. Username may already exist.");
+      
+      // Better error handling
+      if (err && typeof err === 'object' && 'response' in err) {
+        const axiosError = err as { response?: { status?: number; statusText?: string; data?: any } };
+        if (axiosError.response?.status === 400) {
+          const message = axiosError.response?.data?.message || "Username may already exist.";
+          alert(`Signup failed: ${message}`);
+        } else if (axiosError.response?.status === 0 || (err as any).code === 'ERR_NETWORK') {
+          alert("Network error! Check if backend is accessible and CORS is configured correctly.");
+          console.error("Network error details:", err);
+        } else {
+          alert(`Error: ${axiosError.response?.status || 'Unknown'} - ${axiosError.response?.statusText || 'Server error'}`);
+        }
+      } else if (err && typeof err === 'object' && 'message' in err) {
+        console.error("Error message:", (err as any).message);
+        alert("Connection error! Please check your network connection and try again.");
+      } else {
+        alert("Signup failed. Username may already exist.");
+      }
     }
   };
 

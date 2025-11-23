@@ -5,6 +5,50 @@ const axiosWithCredentials = axios.create({ withCredentials: true });
 
 export const HTTP_SERVER = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:4000";
 
+// Log API URL in development and warn if using localhost in production
+if (typeof window !== 'undefined') {
+  if (process.env.NODE_ENV === 'development') {
+    console.log("🔧 API Base URL:", HTTP_SERVER);
+  } else if (HTTP_SERVER.includes('localhost') && window.location.hostname !== 'localhost') {
+    console.warn("⚠️ WARNING: Using localhost API URL in production! Set NEXT_PUBLIC_API_BASE in Vercel.");
+  }
+}
+
+// Add request interceptor for debugging
+axiosWithCredentials.interceptors.request.use(
+  (config) => {
+    if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+      console.log("📤 API Request:", config.method?.toUpperCase(), config.url);
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Add response interceptor for error handling
+axiosWithCredentials.interceptors.response.use(
+  (response) => {
+    if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+      console.log("📥 API Response:", response.status, response.config.url);
+    }
+    return response;
+  },
+  (error) => {
+    if (typeof window !== 'undefined') {
+      console.error("❌ API Error:", {
+        url: error.config?.url,
+        method: error.config?.method,
+        status: error.response?.status,
+        message: error.message,
+        isNetworkError: !error.response
+      });
+    }
+    return Promise.reject(error);
+  }
+);
+
 export const USERS_API = `${HTTP_SERVER}/api/users`;
 
 
