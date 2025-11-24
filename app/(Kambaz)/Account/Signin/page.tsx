@@ -22,8 +22,12 @@ export default function Signin() {
   const router = useRouter();
 
   const signin = async () => {
+    console.log("=== SIGNIN DEBUG ===");
     console.log("Trying to sign in with:", credentials);
-    console.log("API Base URL:", process.env.NEXT_PUBLIC_API_BASE || "http://localhost:4000");
+    console.log("API Base URL (env var):", process.env.NEXT_PUBLIC_API_BASE || "NOT SET - using localhost");
+    console.log("HTTP_SERVER (actual):", client.HTTP_SERVER);
+    console.log("Full signin URL:", `${client.HTTP_SERVER}/api/users/signin`);
+    console.log("===================");
     try {
       const user: User = await client.signin(credentials);
       console.log("Found user:", user);
@@ -34,6 +38,7 @@ export default function Signin() {
       dispatch(setCurrentUser(user));
       router.push("/Dashboard");
     } catch (err: unknown) {
+      console.error("=== SIGNIN ERROR ===");
       console.error("Signin error:", err);
       
       // Better error handling
