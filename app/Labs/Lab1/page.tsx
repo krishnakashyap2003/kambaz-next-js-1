@@ -182,7 +182,7 @@ export default function Lab1() {
         <h5>Local Image</h5>
         <Image
           id="wd-teslabot"
-          src="/images/teslabot.jpg"
+          src="/Images/teslabot.jpg"
           width={200}
           height={200}
           alt="Tesla humanoid robot"

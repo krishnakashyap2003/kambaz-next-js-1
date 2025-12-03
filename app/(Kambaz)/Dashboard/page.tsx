@@ -11,13 +11,13 @@ export default function Dashboard() {
 
   const [published, setPublished] = useState<any[]>([]);
   const [enrolled, setEnrolled] = useState<any[]>([]);
+  const [showEnrolledOnly, setShowEnrolledOnly] = useState(false);
   const [course, setCourse] = useState<any>({
     name: "",
     description: "",
-    image: "/images/reactjs.jpg",
+    image: "/Images/reactjs.jpg",
   });
 
-  // ------------ LOAD ALL COURSES + MY ENROLLMENTS ------------
   const load = async () => {
     const all = await coursesClient.findAllCourses();
     setPublished(all || []);
@@ -32,80 +32,128 @@ export default function Dashboard() {
     load();
   }, [currentUser]);
 
-  // ------------ ADD NEW COURSE ------------
   const addCourse = async () => {
     if (!currentUser) return alert("You must sign in first");
     const newCourse = await userClient.createCourse(course);
     setPublished((p) => [...p, newCourse]);
-    setCourse({ name: "", description: "", image: "/images/reactjs.jpg" });
+    setCourse({ name: "", description: "", image: "/Images/reactjs.jpg" });
   };
 
-  // ------------ UPDATE COURSE ------------
   const updateCourse = async () => {
     if (!course._id) return alert("Select a course to edit.");
     const updated = await coursesClient.updateCourse(course);
 
     setPublished((p) => p.map((c) => (c._id === updated._id ? updated : c)));
-    setCourse({ name: "", description: "", image: "/images/reactjs.jpg" });
+    setCourse({ name: "", description: "", image: "/Images/reactjs.jpg" });
   };
 
-  // ------------ DELETE COURSE ------------
   const deleteCourse = async (id: string) => {
     await coursesClient.deleteCourse(id);
     setPublished((p) => p.filter((x) => x._id !== id));
   };
 
-  // ------------ ENROLL ------------
   const enroll = async (courseId: string) => {
     if (!currentUser) return alert("Login required");
-    await userClient.enrollIntoCourse(currentUser._id, courseId);
-    await load();
+    try {
+      await userClient.enrollIntoCourse(currentUser._id, courseId);
+      const mine = await userClient.findMyCourses();
+      setEnrolled(mine || []);
+    } catch (error) {
+      console.error("Error enrolling in course:", error);
+      alert("Failed to enroll in course. Please try again.");
+    }
   };
 
-  // ------------ UNENROLL ------------
   const unenroll = async (courseId: string) => {
     if (!currentUser) return alert("Login required");
-    await userClient.unenrollFromCourse(currentUser._id, courseId);
-    await load();
+    try {
+      await userClient.unenrollFromCourse(currentUser._id, courseId);
+      const mine = await userClient.findMyCourses();
+      setEnrolled(mine || []);
+    } catch (error) {
+      console.error("Error unenrolling from course:", error);
+      alert("Failed to unenroll from course. Please try again.");
+    }
   };
 
   const isEnrolled = (id: string) =>
-    enrolled.some((c: any) => c._id === id);
+    enrolled.some((c: any) => c && c._id === id);
+
+  const normalizeImagePath = (imagePath: string | undefined): string => {
+    if (!imagePath) return "/Images/reactjs.jpg";
+    if (imagePath.startsWith("/images/")) {
+      return imagePath.replace("/images/", "/Images/");
+    }
+    return imagePath;
+  };
+
+  const displayedCourses = showEnrolledOnly
+    ? published.filter((c: any) => isEnrolled(c._id))
+    : published;
+
+  const toggleView = () => {
+    setShowEnrolledOnly(!showEnrolledOnly);
+  };
+
+  const isFacultyOrAdmin = currentUser?.role === "FACULTY" || currentUser?.role === "ADMIN";
 
   return (
     <div className="p-4">
-      <h2>New Course</h2>
+      {isFacultyOrAdmin && (
+        <>
+          <h2>New Course</h2>
 
-      <input
-        placeholder="Name"
-        className="form-control mb-2"
-        value={course.name}
-        onChange={(e) => setCourse({ ...course, name: e.target.value })}
-      />
+          <input
+            placeholder="Name"
+            className="form-control mb-2"
+            value={course.name}
+            onChange={(e) => setCourse({ ...course, name: e.target.value })}
+          />
 
-      <input
-        placeholder="Description"
-        className="form-control mb-2"
-        value={course.description}
-        onChange={(e) => setCourse({ ...course, description: e.target.value })}
-      />
+          <input
+            placeholder="Description"
+            className="form-control mb-2"
+            value={course.description}
+            onChange={(e) => setCourse({ ...course, description: e.target.value })}
+          />
 
-      <button className="btn btn-primary me-2" onClick={addCourse}>
-        Add
-      </button>
+          <button className="btn btn-primary me-2" onClick={addCourse}>
+            Add
+          </button>
 
-      <button className="btn btn-warning" onClick={updateCourse}>
-        Update
-      </button>
+          <button className="btn btn-warning" onClick={updateCourse}>
+            Update
+          </button>
 
-      <hr />
+          <hr />
+        </>
+      )}
 
-      <h2>Published Courses ({published.length})</h2>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <h2>
+          {showEnrolledOnly ? "Enrolled Courses" : "All Courses"} (
+          {displayedCourses.length})
+        </h2>
+        <button
+          className="btn"
+          style={{ backgroundColor: "#0d6efd", color: "white" }}
+          onClick={toggleView}
+        >
+          {showEnrolledOnly ? "Show All Courses" : "Show Enrolled Courses"}
+        </button>
+      </div>
       <div className="row">
-        {published.map((c: any) => (
+        {displayedCourses.map((c: any) => (
           <div key={c._id} className="col-md-4 mb-4">
             <div className="card">
-              <img src={c.image} className="card-img-top" height={200} />
+              <img 
+                src={normalizeImagePath(c.image)} 
+                className="card-img-top" 
+                height={200}
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = "/Images/reactjs.jpg";
+                }}
+              />
               <div className="card-body">
                 <h5>{c.name}</h5>
                 <p>{c.description}</p>
@@ -120,32 +168,42 @@ export default function Dashboard() {
                 {isEnrolled(c._id) ? (
                   <button
                     className="btn btn-danger me-2"
-                    onClick={() => unenroll(c._id)}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      unenroll(c._id);
+                    }}
                   >
                     Unenroll
                   </button>
                 ) : (
                   <button
                     className="btn btn-success me-2"
-                    onClick={() => enroll(c._id)}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      enroll(c._id);
+                    }}
                   >
                     Enroll
                   </button>
                 )}
 
-                <button
-                  className="btn btn-warning me-2"
-                  onClick={() => setCourse(c)}
-                >
-                  Edit
-                </button>
+                {isFacultyOrAdmin && (
+                  <>
+                    <button
+                      className="btn btn-warning me-2"
+                      onClick={() => setCourse(c)}
+                    >
+                      Edit
+                    </button>
 
-                <button
-                  className="btn btn-danger"
-                  onClick={() => deleteCourse(c._id)}
-                >
-                  Delete
-                </button>
+                    <button
+                      className="btn btn-danger"
+                      onClick={() => deleteCourse(c._id)}
+                    >
+                      Delete
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           </div>

@@ -9,11 +9,14 @@ export default function AccountNavigation() {
   const pathname = usePathname();
   const { currentUser } = useSelector((state: RootState) => state.accountReducer);
 
-  const links = currentUser ? ["Profile"] : ["Signin", "Signup"];
+  const links = currentUser 
+    ? (currentUser.role === "ADMIN" ? ["Profile", "Users"] : ["Profile"])
+    : ["Signin", "Signup"];
   const linkToHref: Record<string, string> = {
     Signin: "/Account/Signin",
     Signup: "/Account/Signup",
     Profile: "/Account/Profile",
+    Users: "/Account/Users",
   };
 
   const isActive = (href: string) =>

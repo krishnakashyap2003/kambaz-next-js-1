@@ -48,6 +48,13 @@ export const findAllCourses = async () => {
   return data;
 };
 
+export const findUsersForCourse = async (courseId: string) => {
+  const { data } = await axiosWithCredentials.get(
+    `${COURSES_API}/${courseId}/users`
+  );
+  return data;
+};
+
 /* ---------------- MODULES ---------------- */
 
 export const findModulesForCourse = async (cid: string) => {

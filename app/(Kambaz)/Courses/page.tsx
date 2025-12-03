@@ -13,7 +13,7 @@ export default function CoursesPage() {
     name: "",
     number: "",
     description: "",
-    image: "/images/reactjs.jpg",
+    image: "/Images/reactjs.jpg",
   });
 
   const isFaculty = currentUser?.role === "FACULTY";
@@ -33,7 +33,7 @@ export default function CoursesPage() {
       name: "",
       number: "",
       description: "",
-      image: "/images/reactjs.jpg"
+      image: "/Images/reactjs.jpg"
     });
   };
 

@@ -9,9 +9,12 @@ import { addModule, deleteModule, setModules, updateModule } from "./reducer";
 export default function Modules() {
   const { cid } = useParams();
   const dispatch = useDispatch();
+  const { currentUser } = useSelector((state: any) => state.accountReducer);
 
   const modules = useSelector((state: any) => state.modulesReducer || []);
   const [moduleName, setModuleName] = useState("");
+
+  const isFacultyOrAdmin = currentUser?.role === "FACULTY" || currentUser?.role === "ADMIN";
 
   const loadModules = async () => {
     const list = await coursesClient.findModulesForCourse(cid as string);
@@ -49,16 +52,20 @@ export default function Modules() {
     <div className="p-4">
       <h2>Modules</h2>
 
-      <input
-        className="form-control mb-2"
-        placeholder="New module"
-        value={moduleName}
-        onChange={(e) => setModuleName(e.target.value)}
-      />
+      {isFacultyOrAdmin && (
+        <>
+          <input
+            className="form-control mb-2"
+            placeholder="New module"
+            value={moduleName}
+            onChange={(e) => setModuleName(e.target.value)}
+          />
 
-      <button className="btn btn-primary mb-3" onClick={create}>
-        + Add Module
-      </button>
+          <button className="btn btn-primary mb-3" onClick={create}>
+            + Add Module
+          </button>
+        </>
+      )}
 
       <ul className="list-group">
         {safeModules.map((m: any) => (
@@ -66,21 +73,23 @@ export default function Modules() {
             <div className="d-flex justify-content-between">
               <strong>{m.name}</strong>
 
-              <span>
-                <button
-                  className="btn btn-warning btn-sm me-2"
-                  onClick={() => save({ ...m, name: m.name + " (Updated)" })}
-                >
-                  Edit
-                </button>
+              {isFacultyOrAdmin && (
+                <span>
+                  <button
+                    className="btn btn-warning btn-sm me-2"
+                    onClick={() => save({ ...m, name: m.name + " (Updated)" })}
+                  >
+                    Edit
+                  </button>
 
-                <button
-                  className="btn btn-danger btn-sm"
-                  onClick={() => remove(m._id)}
-                >
-                  Delete
-                </button>
-              </span>
+                  <button
+                    className="btn btn-danger btn-sm"
+                    onClick={() => remove(m._id)}
+                  >
+                    Delete
+                  </button>
+                </span>
+              )}
             </div>
           </li>
         ))}

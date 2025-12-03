@@ -16,10 +16,24 @@ export default function Profile() {
     (state: RootState) => state.accountReducer
   );
 
+  const formatDateForInput = (dateString: string | undefined): string => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "";
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
   const fetchProfile = async () => {
     try {
       const userProfile: User = await client.profile();
-      setProfile(userProfile);
+      const formattedProfile = {
+        ...userProfile,
+        dob: formatDateForInput(userProfile.dob),
+      };
+      setProfile(formattedProfile);
     } catch (err: unknown) {
       console.error("Error fetching profile:", err);
       router.push("/Account/Signin");
@@ -28,9 +42,17 @@ export default function Profile() {
 
   const updateProfile = async () => {
     try {
-      await client.updateUser(profile);
-      const updatedUser: User = await client.profile();
+      const profileToUpdate = {
+        ...profile,
+        dob: profile.dob ? new Date(profile.dob).toISOString() : profile.dob,
+      };
+      const updatedUser: User = await client.updateUser(profileToUpdate);
+      const formattedProfile = {
+        ...updatedUser,
+        dob: formatDateForInput(updatedUser.dob),
+      };
       dispatch(setCurrentUser(updatedUser));
+      setProfile(formattedProfile);
       alert("Profile updated successfully!");
     } catch (err: unknown) {
       console.error("Update error:", err);
@@ -50,7 +72,6 @@ export default function Profile() {
 
   useEffect(() => {
     fetchProfile();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

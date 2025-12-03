@@ -155,3 +155,28 @@ export const unenrollFromCourse = async (userId: string, courseId: string) => {
   );
   return response.data;
 };
+
+export const findAllUsers = async (role?: string, name?: string) => {
+  const params = new URLSearchParams();
+  if (role) params.append("role", role);
+  if (name) params.append("name", name);
+  const queryString = params.toString();
+  const url = `${getUsersApi()}${queryString ? `?${queryString}` : ""}`;
+  const response = await axiosWithCredentials.get(url);
+  return response.data;
+};
+
+export const findUserById = async (userId: string) => {
+  const response = await axiosWithCredentials.get(`${getUsersApi()}/${userId}`);
+  return response.data;
+};
+
+export const createUser = async (user: any) => {
+  const response = await axiosWithCredentials.post(getUsersApi(), user);
+  return response.data;
+};
+
+export const deleteUserById = async (userId: string) => {
+  const response = await axiosWithCredentials.delete(`${getUsersApi()}/${userId}`);
+  return response.data;
+};

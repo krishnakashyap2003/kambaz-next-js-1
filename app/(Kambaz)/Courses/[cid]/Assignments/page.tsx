@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import { useSelector } from "react-redux";
 import * as client from "@/app/(Kambaz)/Courses/client";
 
 // ------------------------
@@ -17,12 +18,12 @@ interface Assignment {
 
 export default function Assignments() {
   const { cid } = useParams();
+  const { currentUser } = useSelector((state: any) => state.accountReducer);
 
-  // ----------------------------------
-  //  Properly typed state
-  // ----------------------------------
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [title, setTitle] = useState<string>("");
+
+  const isFacultyOrAdmin = currentUser?.role === "FACULTY" || currentUser?.role === "ADMIN";
 
   // -----------------------------
   // LOAD ASSIGNMENTS FOR COURSE
@@ -85,16 +86,20 @@ export default function Assignments() {
     <div className="p-4">
       <h2>Assignments</h2>
 
-      <input
-        className="form-control mb-2"
-        placeholder="New assignment"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-      />
+      {isFacultyOrAdmin && (
+        <>
+          <input
+            className="form-control mb-2"
+            placeholder="New assignment"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
 
-      <button className="btn btn-primary mb-3" onClick={create}>
-        + Assignment
-      </button>
+          <button className="btn btn-primary mb-3" onClick={create}>
+            + Assignment
+          </button>
+        </>
+      )}
 
       {assignments.map((a: Assignment) => (
         <div key={a._id} className="border p-3 mb-3">
@@ -103,16 +108,20 @@ export default function Assignments() {
             Available: {a.available} • Due: {a.due} • {a.points} pts
           </p>
 
-          <button
-            className="btn btn-warning me-2"
-            onClick={() => save({ ...a, title: a.title + " (Updated)" })}
-          >
-            Edit
-          </button>
+          {isFacultyOrAdmin && (
+            <>
+              <button
+                className="btn btn-warning me-2"
+                onClick={() => save({ ...a, title: a.title + " (Updated)" })}
+              >
+                Edit
+              </button>
 
-          <button className="btn btn-danger" onClick={() => remove(a._id!)}>
-            Delete
-          </button>
+              <button className="btn btn-danger" onClick={() => remove(a._id!)}>
+                Delete
+              </button>
+            </>
+          )}
         </div>
       ))}
     </div>
