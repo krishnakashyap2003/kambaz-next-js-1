@@ -18,14 +18,22 @@ export default function KambazNavigation() {
   return (
     <ListGroup id="wd-kambaz-navigation" style={{width: 120}}
          className="rounded-0 position-fixed bottom-0 top-0 d-none d-md-block bg-black z-2">
-      <ListGroupItem id="wd-neu-link" target="_blank" href="https://www.northeastern.edu/"
-        action className="bg-black border-0 text-center">
-          <img src="/Images/neu.png" width="75px" alt="Northeastern University Logo" style={{ height: 'auto' }} /></ListGroupItem>
-        <ListGroupItem className="bg-black border-0 text-center" style={{ padding: '10px' }}>
-          <a href="https://www.northeastern.edu/" target="_blank" rel="noopener noreferrer">
-            <img src="/Images/neu.png" width="70px" alt="Northeastern University Logo" />
-          </a>
-        </ListGroupItem>
+      <ListGroupItem className="bg-black border-0 text-center" style={{ padding: '10px' }}>
+        <a href="https://www.northeastern.edu/" target="_blank" rel="noopener noreferrer" style={{ display: 'block' }}>
+          <img 
+            src="/Images/neu.png" 
+            width="75" 
+            height="75"
+            alt="Northeastern University Logo"
+            style={{ height: 'auto', width: '75px', maxWidth: '100%' }}
+            onError={(e) => {
+              console.error('Image failed to load:', e);
+              // Fallback to try lowercase path
+              (e.target as HTMLImageElement).src = '/images/neu.png';
+            }}
+          />
+        </a>
+      </ListGroupItem>
       <ListGroupItem as={Link} href="/Account"
         className={`text-center border-0 bg-black
             ${pathname.includes("Account") ? "bg-white text-danger" : "bg-black text-white"}`}>
