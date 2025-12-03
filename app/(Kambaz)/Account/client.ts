@@ -7,6 +7,9 @@ const axiosWithCredentials = axios.create({ withCredentials: true });
 // Use a getter function so it's evaluated at runtime, not build time
 export const getHttpServer = () => getApiServer();
 
+// Export HTTP_SERVER for backward compatibility (used in Signin page)
+export { HTTP_SERVER };
+
 // Log API URL and warn if using localhost in production
 if (typeof window !== 'undefined') {
   const currentServer = getApiServer(); // Get fresh value at runtime
