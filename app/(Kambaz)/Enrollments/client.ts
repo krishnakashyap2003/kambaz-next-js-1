@@ -1,6 +1,5 @@
 import axios from "axios";
-
-const HTTP_SERVER = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:4000";
+import { HTTP_SERVER } from "../lib/api-config";
 const ENROLLMENTS_API = `${HTTP_SERVER}/api/enrollments`;
 
 export const fetchAllEnrollments = async () => {

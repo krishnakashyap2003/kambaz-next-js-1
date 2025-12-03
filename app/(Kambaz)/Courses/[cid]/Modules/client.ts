@@ -1,9 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from "axios";
+import { HTTP_SERVER } from "../../../lib/api-config";
 
 const axiosWithCredentials = axios.create({ withCredentials: true });
-
-const HTTP_SERVER = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:4000";
 
 export const MODULE_SERVER = `${HTTP_SERVER}/api/modules`;
 

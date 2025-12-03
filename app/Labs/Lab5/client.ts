@@ -1,5 +1,5 @@
 import axios from "axios";
-const HTTP_SERVER = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:4000";
+import { HTTP_SERVER } from "../../lib/api-config";
 
 // Helper function to get API URL from path
 // Usage: getApiUrl('/lab5/assignment') => 'https://server.com/lab5/assignment'

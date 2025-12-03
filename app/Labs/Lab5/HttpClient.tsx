@@ -1,15 +1,14 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import * as client from "./client";
-
-const HTTP_SERVER = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:4000";
+import { HTTP_SERVER, getApiServer } from "../../lib/api-config";
 
 export default function HttpClient() {
   const [welcomeOnClick, setWelcomeOnClick] = useState("");
   const [welcomeOnLoad, setWelcomeOnLoad] = useState("");
 
   console.log("ENV TEST:", {
-  HTTP_SERVER: process.env.NEXT_PUBLIC_API_BASE || "http://localhost:4000",
+  HTTP_SERVER: getApiServer(),
   ASSIGNMENT_API: process.env.NEXT_PUBLIC_ASSIGNMENT_API,
   TODOS_API: process.env.NEXT_PUBLIC_TODOS_API,
 });

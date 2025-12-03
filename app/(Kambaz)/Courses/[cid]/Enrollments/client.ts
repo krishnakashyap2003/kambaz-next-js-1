@@ -1,9 +1,8 @@
 import axios from "axios";
 import { Enrollment } from "../../../types";
+import { HTTP_SERVER } from "../../../lib/api-config";
 
 const axiosWithCredentials = axios.create({ withCredentials: true });
-
-const HTTP_SERVER = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:4000";
 const ENROLLMENTS_API = `${HTTP_SERVER}/api/enrollments`;
 const USERS_API = `${HTTP_SERVER}/api/users`;
 

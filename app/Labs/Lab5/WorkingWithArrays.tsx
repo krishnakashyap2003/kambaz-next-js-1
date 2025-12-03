@@ -1,8 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { FormControl } from "react-bootstrap";
-
-const HTTP_SERVER = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:4000";
+import { HTTP_SERVER } from "../../lib/api-config";
 const API = `${HTTP_SERVER}/lab5/todos`;
 
 export default function WorkingWithArrays() {

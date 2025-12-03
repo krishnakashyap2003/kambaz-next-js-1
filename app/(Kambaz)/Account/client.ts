@@ -1,37 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from "axios";
+import { getApiServer, HTTP_SERVER } from "../lib/api-config";
 
 const axiosWithCredentials = axios.create({ withCredentials: true });
 
-// Determine API server URL at runtime
-// Priority: 1. Environment variable, 2. Auto-detect from hostname, 3. Default to localhost
-const getApiServer = () => {
-  // If environment variable is set, use it
-  if (process.env.NEXT_PUBLIC_API_BASE) {
-    return process.env.NEXT_PUBLIC_API_BASE;
-  }
-  
-  // Auto-detect: if running on Vercel (production), use Render server
-  if (typeof window !== 'undefined') {
-    const hostname = window.location.hostname;
-    // If on Vercel domain (not localhost), use Render server
-    if (hostname.includes('vercel.app') || hostname.includes('vercel.com')) {
-      return 'https://kambaz-node-server-app-w7cz.onrender.com';
-    }
-  }
-  
-  // Also check process.env for Vercel's environment (server-side)
-  if (typeof process !== 'undefined' && process.env.VERCEL_URL) {
-    return 'https://kambaz-node-server-app-w7cz.onrender.com';
-  }
-  
-  // Default to localhost for local development
-  return 'http://localhost:4000';
-};
-
 // Use a getter function so it's evaluated at runtime, not build time
 export const getHttpServer = () => getApiServer();
-export const HTTP_SERVER = getApiServer(); // For backward compatibility, but will be re-evaluated
 
 // Log API URL and warn if using localhost in production
 if (typeof window !== 'undefined') {
@@ -50,7 +24,7 @@ axiosWithCredentials.interceptors.request.use(
     if (typeof window !== 'undefined') {
       const currentServer = getApiServer();
       console.log("📤 API Request:", config.method?.toUpperCase(), config.url);
-      console.log("📤 Full URL:", config.baseURL || currentServer + config.url);
+      console.log("📤 Full URL:", config.baseURL || currentServer + (config.url || ''));
     }
     return config;
   },
@@ -83,7 +57,7 @@ axiosWithCredentials.interceptors.response.use(
 
 // Use getter function to get fresh API URL at runtime
 export const getUsersApi = () => `${getApiServer()}/api/users`;
-export const USERS_API = getUsersApi(); // For backward compatibility
+export const USERS_API = getUsersApi(); // For backward compatibility - will be evaluated at runtime
 
 
 export const signin = async (credentials: any) => {
