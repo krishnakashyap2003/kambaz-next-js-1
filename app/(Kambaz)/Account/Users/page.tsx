@@ -5,6 +5,8 @@ import { useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { Table, Button, Form, Modal, InputGroup } from "react-bootstrap";
 import { FaUserCircle, FaTrash, FaEdit, FaPlus } from "react-icons/fa";
+import { FaPencil } from "react-icons/fa6";
+import { IoCloseSharp } from "react-icons/io5";
 import * as client from "../client";
 import { RootState } from "../../store";
 
@@ -98,6 +100,8 @@ export default function Users() {
     try {
       await client.updateUser(editingUser);
       await loadUsers();
+      // Update selectedUser with the edited data
+      setSelectedUser(editingUser);
       setEditingUser(null);
     } catch (error) {
       console.error("Error updating user:", error);
@@ -106,17 +110,19 @@ export default function Users() {
   };
 
   const handleDelete = async (userId: string) => {
-    if (!confirm("Are you sure you want to delete this user?")) return;
+    const userToDelete = users.find((u) => u._id === userId);
+    const userName = userToDelete ? `${userToDelete.firstName} ${userToDelete.lastName}` : "this user";
+    if (!window.confirm(`Are you sure you want to delete ${userName}?`)) return;
     try {
       await client.deleteUserById(userId);
-      setUsers(users.filter((u) => u._id !== userId));
+      await loadUsers();
       if (selectedUser?._id === userId) {
         setShowDetails(false);
         setSelectedUser(null);
       }
     } catch (error) {
       console.error("Error deleting user:", error);
-      alert("Failed to delete user");
+      alert("Failed to delete user. Please try again.");
     }
   };
 
@@ -147,9 +153,9 @@ export default function Users() {
     <div className="p-4">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h2>Users</h2>
-        <Button variant="primary" onClick={() => setShowAddModal(true)}>
-          <FaPlus className="me-2" />
-          People
+        <Button variant="primary" onClick={() => setShowAddModal(true)} className="d-flex flex-column align-items-center justify-content-center" style={{ width: "80px", height: "80px" }}>
+          <FaPlus className="mb-1" style={{ fontSize: "1.5rem" }} />
+          <span>People</span>
         </Button>
       </div>
 
@@ -176,18 +182,24 @@ export default function Users() {
         <thead className="table-secondary">
           <tr>
             <th>Name</th>
-            <th>Username</th>
-            <th>Email</th>
+            <th>Login ID</th>
+            <th>Section</th>
             <th>Role</th>
-            <th>Actions</th>
+            <th>Last Activity</th>
+            <th>Total Activity</th>
           </tr>
         </thead>
         <tbody>
           {filteredUsers.map((user) => (
-            <tr key={user._id}>
-              <td>
+            <tr 
+              key={user._id}
+              onClick={() => handleUserClick(user)}
+              style={{ cursor: "pointer" }}
+              className={selectedUser?._id === user._id ? "table-active" : ""}
+            >
+              <td className="wd-full-name text-nowrap">
                 {editingUser?._id === user._id ? (
-                  <InputGroup size="sm">
+                  <InputGroup size="sm" onClick={(e) => e.stopPropagation()}>
                     <Form.Control
                       value={editingUser.firstName || ""}
                       onChange={(e) =>
@@ -214,82 +226,135 @@ export default function Users() {
                     </Button>
                   </InputGroup>
                 ) : (
-                  <span
-                    style={{ cursor: "pointer", color: "blue" }}
-                    onClick={() => handleUserClick(user)}
-                  >
-                    <FaUserCircle className="me-2" />
-                    {user.firstName} {user.lastName}
-                  </span>
-                )}
-              </td>
-              <td>{user.username}</td>
-              <td>{user.email}</td>
-              <td>{user.role}</td>
-              <td>
-                {editingUser?._id !== user._id && (
                   <>
-                    <Button
-                      size="sm"
-                      variant="warning"
-                      className="me-2"
-                      onClick={() => handleEdit(user)}
-                    >
-                      <FaEdit />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="danger"
-                      onClick={() => handleDelete(user._id)}
-                    >
-                      <FaTrash />
-                    </Button>
+                    <FaUserCircle className="me-2 fs-1 text-secondary" />
+                    <span className="wd-first-name">{user.firstName}</span>{" "}
+                    <span className="wd-last-name">{user.lastName}</span>
                   </>
                 )}
               </td>
+              <td className="wd-login-id">{user.loginId || `00${user._id}`}</td>
+              <td className="wd-section">{user.section || "-"}</td>
+              <td className="wd-role">{user.role}</td>
+              <td className="wd-last-activity">{user.lastActivity || "-"}</td>
+              <td className="wd-total-activity">{user.totalActivity || "-"}</td>
             </tr>
           ))}
         </tbody>
       </Table>
 
-      <Modal show={showDetails} onHide={() => setShowDetails(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>User Details</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {selectedUser && (
-            <div>
-              <p>
-                <strong>Name:</strong> {selectedUser.firstName} {selectedUser.lastName}
-              </p>
-              <p>
-                <strong>Username:</strong> {selectedUser.username}
-              </p>
-              <p>
-                <strong>Email:</strong> {selectedUser.email}
-              </p>
-              <p>
-                <strong>Role:</strong> {selectedUser.role}
-              </p>
-              {selectedUser.section && (
-                <p>
-                  <strong>Section:</strong> {selectedUser.section}
-                </p>
+      {showDetails && selectedUser && (
+        <div className="wd-user-details position-fixed top-0 end-0 bottom-0 bg-white p-4 shadow-lg" style={{ width: "25%", zIndex: 1050, overflowY: "auto" }}>
+          <button
+            onClick={() => setShowDetails(false)}
+            className="btn position-absolute end-0 top-0 wd-close-details border-0 bg-transparent p-2"
+            style={{ zIndex: 1051 }}
+          >
+            <IoCloseSharp className="fs-1" />
+          </button>
+
+          <div className="text-center mt-5 mb-3">
+            <FaUserCircle className="text-secondary fs-1" style={{ fontSize: "4rem" }} />
+          </div>
+
+          <hr />
+
+          <div className="d-flex align-items-center justify-content-between mb-3">
+            {editingUser?._id === selectedUser._id ? (
+              <InputGroup size="sm">
+                <Form.Control
+                  value={editingUser.firstName || ""}
+                  onChange={(e) =>
+                    setEditingUser({ ...editingUser, firstName: e.target.value })
+                  }
+                  placeholder="First Name"
+                />
+                <Form.Control
+                  value={editingUser.lastName || ""}
+                  onChange={(e) =>
+                    setEditingUser({ ...editingUser, lastName: e.target.value })
+                  }
+                  placeholder="Last Name"
+                />
+                <Button size="sm" variant="success" onClick={handleSaveEdit}>
+                  Save
+                </Button>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => {
+                    setEditingUser(null);
+                    setSelectedUser(users.find((u) => u._id === selectedUser._id) || selectedUser);
+                  }}
+                >
+                  Cancel
+                </Button>
+              </InputGroup>
+            ) : (
+              <>
+                <h5 className="text-danger mb-0 fw-bold">
+                  {selectedUser.firstName} {selectedUser.lastName}
+                </h5>
+                <FaPencil 
+                  className="text-danger" 
+                  style={{ cursor: "pointer", fontSize: "1.2rem" }}
+                  onClick={() => {
+                    setEditingUser({ ...selectedUser });
+                  }}
+                />
+              </>
+            )}
+          </div>
+
+          {editingUser?._id !== selectedUser._id && (
+            <>
+              <div className="mb-3">
+                <strong>Roles:</strong> {selectedUser.role}
+              </div>
+
+              <div className="mb-3">
+                <strong>Login ID:</strong> {selectedUser.loginId || `00${selectedUser._id}`}
+              </div>
+
+              <div className="mb-3">
+                <strong>Section:</strong> {selectedUser.section || "-"}
+              </div>
+
+              <div className="mb-4">
+                <strong>Total Activity:</strong> {selectedUser.totalActivity || "-"}
+              </div>
+
+              {selectedUser.username && (
+                <div className="mb-3">
+                  <strong>Username:</strong> {selectedUser.username}
+                </div>
               )}
-              {selectedUser.loginId && (
-                <p>
-                  <strong>Login ID:</strong> {selectedUser.loginId}
-                </p>
+
+              {selectedUser.email && (
+                <div className="mb-3">
+                  <strong>Email:</strong> {selectedUser.email}
+                </div>
               )}
-            </div>
+            </>
           )}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowDetails(false)}>
-            Close
-          </Button>
-        </Modal.Footer>
-      </Modal>
+
+          <div className="d-flex gap-2 mt-4">
+            <Button variant="secondary" onClick={() => setShowDetails(false)} className="flex-grow-1">
+              Cancel
+            </Button>
+            <Button 
+              variant="danger" 
+              onClick={() => {
+                handleDelete(selectedUser._id);
+                setShowDetails(false);
+              }} 
+              className="flex-grow-1"
+            >
+              Delete
+            </Button>
+          </div>
+        </div>
+      )}
 
       <Modal show={showAddModal} onHide={() => setShowAddModal(false)}>
         <Modal.Header closeButton>

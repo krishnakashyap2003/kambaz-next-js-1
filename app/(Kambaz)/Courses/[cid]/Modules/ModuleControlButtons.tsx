@@ -13,18 +13,18 @@ export default function ModuleControlButtons({
   editModule: (moduleId: string) => void;
 }) {
   return (
-    <div className="float-end d-flex align-items-center gap-2">
+    <div className="d-flex align-items-center gap-2">
       {/* Edit button (Pencil icon) */}
       <FaPencil
         onClick={() => editModule(moduleId)}
-        className="text-primary fs-5"
-        style={{ cursor: "pointer" }}
+        className="text-primary"
+        style={{ cursor: "pointer", fontSize: "1.1rem" }}
       />
 
       {/* Trashcan icon */}
       <FaTrash
-        className="text-danger fs-5"
-        style={{ cursor: "pointer" }}
+        className="text-danger"
+        style={{ cursor: "pointer", fontSize: "1.1rem" }}
         onClick={() => deleteModule(moduleId)}
       />
 
@@ -32,10 +32,10 @@ export default function ModuleControlButtons({
       <GreenCheckmark />
 
       {/* Plus icon */}
-      <BsPlus className="fs-4" style={{ cursor: "pointer" }} />
+      <BsPlus className="text-muted" style={{ cursor: "pointer", fontSize: "1.2rem" }} />
 
       {/* Ellipsis icon */}
-      <IoEllipsisVertical className="fs-4" style={{ cursor: "pointer" }} />
+      <IoEllipsisVertical className="text-muted" style={{ cursor: "pointer", fontSize: "1.2rem" }} />
     </div>
   );
 }

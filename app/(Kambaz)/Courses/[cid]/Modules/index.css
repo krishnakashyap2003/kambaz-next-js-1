@@ -1,37 +1,198 @@
-.wd-content {
-    list-style-type: none !important;
-    padding-left: 0 !important;
-  }
-  
-  .wd-content-item {
-    display: flex !important;
-    align-items: center !important;
-    padding: 8px 0 !important;
-  }
-  
-  .wd-lesson {
-    display: flex !important;
-    align-items: center !important;
-    flex-wrap: nowrap !important;
-  }
-  
-  .wd-title {
-    display: flex !important;
-    align-items: center !important;
-  }
-  
-  #wd-modules {
-    color: rgb(122, 125, 128) !important;
-  }
-  
-  .wd-module {
-    border-left: 4px solid #28a745 !important;
-  }
+.wd-modules-page {
+  padding: 20px;
+}
 
-  .wd-title {
-    border-left: 4px solid #28a745;
-  }
-  
-  .wd-lessons .list-group-item {
-    display: block !important;
-  }
+/* Action buttons styling for consistent sizing */
+.wd-action-btn {
+  height: 38px !important;
+  min-width: fit-content;
+  padding: 8px 16px !important;
+  font-size: 1rem !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  white-space: nowrap;
+  line-height: 1.5;
+  box-sizing: border-box;
+}
+
+/* Ensure all buttons have same height and styling */
+#wd-collapse-all,
+#wd-view-progress,
+#wd-publish-all-btn,
+#wd-add-module-btn {
+  height: 38px !important;
+  padding: 8px 16px !important;
+  font-size: 1rem !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box;
+}
+
+/* Publish All button specific styling */
+#wd-publish-all-btn {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.25rem;
+}
+
+#wd-publish-all-btn .dropdown-toggle::after {
+  margin-left: 0.5rem;
+  vertical-align: middle;
+  opacity: 1;
+}
+
+/* Dropdown menu items alignment */
+#wd-publish-all-btn + .dropdown-menu .dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Ensure checkmark alignment in dropdown */
+.dropdown-menu .dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Module control buttons alignment */
+.wd-module-header .float-end {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Lesson control buttons alignment */
+.wd-lesson-item .float-end {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wd-modules-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.wd-module-item {
+  margin-bottom: 2px;
+}
+
+.wd-module-header {
+  background-color: #e9ecef;
+  padding: 12px 16px;
+  border-radius: 4px;
+  min-height: 50px;
+  border: 1px solid #dee2e6;
+  margin-bottom: 2px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wd-module-name {
+  font-size: 1rem;
+  color: #212529;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+}
+
+.wd-drag-handle {
+  cursor: move;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+  min-width: 24px;
+}
+
+.wd-drag-handle:hover {
+  opacity: 0.7;
+}
+
+.wd-drag-handle svg {
+  display: block;
+}
+
+.wd-lessons-list {
+  background-color: #f8f9fa;
+  padding: 0;
+  margin: 0;
+  border-left: 4px solid transparent;
+}
+
+.wd-lesson-item {
+  background-color: #f8f9fa;
+  padding: 10px 16px 10px 48px;
+  border-top: 1px solid #e9ecef;
+  min-height: 45px;
+  display: flex;
+  align-items: center;
+}
+
+.wd-lesson-item:first-child {
+  border-top: none;
+  padding-top: 12px;
+}
+
+.wd-lesson-item:last-child {
+  padding-bottom: 12px;
+}
+
+.wd-lesson-name {
+  font-size: 0.95rem;
+  color: #495057;
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.wd-lesson-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.wd-content {
+  list-style-type: none !important;
+  padding-left: 0 !important;
+}
+
+.wd-content-item {
+  display: flex !important;
+  align-items: center !important;
+  padding: 8px 0 !important;
+}
+
+.wd-lesson {
+  display: flex !important;
+  align-items: center !important;
+  flex-wrap: nowrap !important;
+}
+
+.wd-title {
+  display: flex !important;
+  align-items: center !important;
+}
+
+#wd-modules {
+  color: rgb(122, 125, 128) !important;
+}
+
+.wd-module {
+  border-left: 4px solid #28a745 !important;
+}
+
+.wd-title {
+  border-left: 4px solid #28a745;
+}
+
+.wd-lessons .list-group-item {
+  display: block !important;
+}

@@ -1,18 +1,54 @@
 "use client";
+import { useState, useEffect } from "react";
 import { Table, Button } from "react-bootstrap";
 import { FaUserCircle } from "react-icons/fa";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import * as db from "../../../../Database";
+import * as coursesClient from "@/app/(Kambaz)/Courses/client";
+import PeopleDetails from "../Details";
 
 export default function PeopleTable() {
   const { cid } = useParams();
-  const users = db.user;
-  const enrollments = db.enrollments;
+  const [selectedUserId, setSelectedUserId] = useState<string | undefined>();
+  const [users, setUsers] = useState<any[]>([]);
+  const [enrollments, setEnrollments] = useState<any[]>([]);
+
+  const fetchUsers = async () => {
+    try {
+      const courseUsers = await coursesClient.findUsersForCourse(cid as string);
+      setUsers(courseUsers || []);
+      
+      // Also get enrollments if needed
+      const allEnrollments = db.enrollments;
+      setEnrollments(allEnrollments);
+    } catch (error) {
+      console.error("Error loading users:", error);
+      // Fallback to database
+      setUsers(db.user);
+      setEnrollments(db.enrollments);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, [cid]);
 
   const enrolled = users.filter((u: any) =>
     enrollments.some((e: any) => e.user === u._id && e.course === cid)
   );
+
+  const handleUserClick = (userId: string) => {
+    setSelectedUserId(userId);
+  };
+
+  const handleCloseDetails = () => {
+    setSelectedUserId(undefined);
+  };
+
+  const handleUserDeleted = () => {
+    fetchUsers();
+  };
 
   return (
     <div id="wd-people-table" className="p-4">
@@ -38,7 +74,12 @@ export default function PeopleTable() {
         </thead>
         <tbody>
           {enrolled.map((user: any) => (
-            <tr key={user._id}>
+            <tr 
+              key={user._id}
+              onClick={() => handleUserClick(user._id)}
+              style={{ cursor: "pointer" }}
+              className={selectedUserId === user._id ? "table-active" : ""}
+            >
               <td className="wd-full-name text-nowrap">
                 <FaUserCircle className="me-2 fs-1 text-secondary" />
                 <span className="wd-first-name">{user.firstName}</span>{" "}
@@ -53,6 +94,14 @@ export default function PeopleTable() {
           ))}
         </tbody>
       </Table>
+
+      {selectedUserId && (
+        <PeopleDetails
+          uid={selectedUserId}
+          onClose={handleCloseDetails}
+          onUserDeleted={handleUserDeleted}
+        />
+      )}
     </div>
   );
 }

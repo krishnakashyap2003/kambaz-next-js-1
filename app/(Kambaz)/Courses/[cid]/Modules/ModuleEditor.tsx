@@ -41,10 +41,9 @@ export default function ModuleEditor({
           variant="primary"
           onClick={() => {
             addModule();
-            handleClose();
           }}
         >
-          Add Module
+          {dialogTitle === "Edit Module" ? "Update Module" : "Add Module"}
         </Button>
       </Modal.Footer>
     </Modal>

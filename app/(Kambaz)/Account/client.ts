@@ -26,8 +26,19 @@ axiosWithCredentials.interceptors.request.use(
   (config) => {
     if (typeof window !== 'undefined') {
       const currentServer = getApiServer();
+      // Construct the full URL properly
+      let fullUrl = config.url || '';
+      if (config.baseURL) {
+        fullUrl = config.baseURL + (fullUrl.startsWith('/') ? fullUrl : '/' + fullUrl);
+      } else if (fullUrl && !fullUrl.startsWith('http')) {
+        // If URL doesn't start with http, it's a relative URL, prepend base
+        fullUrl = currentServer + (fullUrl.startsWith('/') ? fullUrl : '/' + fullUrl);
+      } else if (!fullUrl.startsWith('http')) {
+        // If no URL provided, just show the base
+        fullUrl = currentServer;
+      }
       console.log("📤 API Request:", config.method?.toUpperCase(), config.url);
-      console.log("📤 Full URL:", config.baseURL || currentServer + (config.url || ''));
+      console.log("📤 Full URL:", fullUrl);
     }
     return config;
   },
