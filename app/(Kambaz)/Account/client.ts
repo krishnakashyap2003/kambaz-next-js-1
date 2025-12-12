@@ -91,11 +91,37 @@ export const signup = async (user: any) => {
 };
 
 export const updateUser = async (user: any) => {
-  const response = await axiosWithCredentials.put(
-    `${getUsersApi()}/${user._id}`,
-    user
-  );
-  return response.data;
+  if (!user || !user._id) {
+    throw new Error("User object or user._id is missing");
+  }
+  
+  const apiBase = getUsersApi();
+  // URL encode the userId to handle UUIDs with hyphens and special characters
+  const encodedUserId = encodeURIComponent(user._id);
+  const url = `${apiBase}/${encodedUserId}`;
+  
+  console.log("🔄 updateUser called:");
+  console.log("   User ID (raw):", user._id);
+  console.log("   User ID (encoded):", encodedUserId);
+  console.log("   API Base:", apiBase);
+  console.log("   Full URL:", url);
+  console.log("   User data:", user);
+  
+  try {
+    const response = await axiosWithCredentials.put(url, user);
+    console.log("✅ updateUser success:", response.status);
+    return response.data;
+  } catch (error: any) {
+    console.error("❌ updateUser error:", {
+      url: error.config?.url || url,
+      method: error.config?.method || 'PUT',
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data,
+      message: error.message
+    });
+    throw error;
+  }
 };
 
 export const profile = async () => {
@@ -155,7 +181,8 @@ export const findAllUsers = async (role?: string, name?: string) => {
 };
 
 export const findUserById = async (userId: string) => {
-  const response = await axiosWithCredentials.get(`${getUsersApi()}/${userId}`);
+  const encodedUserId = encodeURIComponent(userId);
+  const response = await axiosWithCredentials.get(`${getUsersApi()}/${encodedUserId}`);
   return response.data;
 };
 
@@ -165,6 +192,7 @@ export const createUser = async (user: any) => {
 };
 
 export const deleteUserById = async (userId: string) => {
-  const response = await axiosWithCredentials.delete(`${getUsersApi()}/${userId}`);
+  const encodedUserId = encodeURIComponent(userId);
+  const response = await axiosWithCredentials.delete(`${getUsersApi()}/${encodedUserId}`);
   return response.data;
 };

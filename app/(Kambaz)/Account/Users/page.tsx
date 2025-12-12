@@ -97,15 +97,28 @@ export default function Users() {
 
   const handleSaveEdit = async () => {
     if (!editingUser) return;
+    if (!editingUser._id) {
+      alert("Error: User ID is missing");
+      return;
+    }
     try {
+      console.log("Updating user with ID:", editingUser._id);
+      console.log("User data:", editingUser);
       await client.updateUser(editingUser);
       await loadUsers();
       // Update selectedUser with the edited data
       setSelectedUser(editingUser);
       setEditingUser(null);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error updating user:", error);
-      alert("Failed to update user");
+      const errorMessage = error?.response?.data?.message || error?.message || "Failed to update user";
+      console.error("Full error details:", {
+        status: error?.response?.status,
+        statusText: error?.response?.statusText,
+        data: error?.response?.data,
+        url: error?.config?.url
+      });
+      alert(`Failed to update user: ${errorMessage}`);
     }
   };
 

@@ -41,11 +41,17 @@ export default function Profile() {
   };
 
   const updateProfile = async () => {
+    if (!profile._id) {
+      alert("Error: User ID is missing");
+      return;
+    }
     try {
       const profileToUpdate = {
         ...profile,
         dob: profile.dob ? new Date(profile.dob).toISOString() : profile.dob,
       };
+      console.log("Updating profile with ID:", profileToUpdate._id);
+      console.log("Profile data:", profileToUpdate);
       const updatedUser: User = await client.updateUser(profileToUpdate);
       const formattedProfile = {
         ...updatedUser,
@@ -54,9 +60,16 @@ export default function Profile() {
       dispatch(setCurrentUser(updatedUser));
       setProfile(formattedProfile);
       alert("Profile updated successfully!");
-    } catch (err: unknown) {
+    } catch (err: any) {
       console.error("Update error:", err);
-      alert("Failed to update profile");
+      const errorMessage = err?.response?.data?.message || err?.message || "Failed to update profile";
+      console.error("Full error details:", {
+        status: err?.response?.status,
+        statusText: err?.response?.statusText,
+        data: err?.response?.data,
+        url: err?.config?.url
+      });
+      alert(`Failed to update profile: ${errorMessage}`);
     }
   };
 
